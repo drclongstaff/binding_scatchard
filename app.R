@@ -61,7 +61,7 @@ ui <- fluidPage(
           h4(textOutput("text1")),
           h4("Results Table"),
           tableOutput("resultsTable")
-          #helpText(h5("*Scatchard plots included for binding assays where V=Bound and S=Free ligand")),
+          #helpText(h5("Scatchard plots included for binding assays where V=Bound and S=Free ligand")),
           #helpText(h5("In this case Vmax=Max bound and Km=Kd"))
         ),
         tabPanel("Raw data", DT::DTOutput("contents")),
