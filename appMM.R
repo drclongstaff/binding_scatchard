@@ -33,9 +33,9 @@ ui <- fluidPage(
         inputId = "raw", label = tags$h4("Select plot"),
         choices = c(
           "Non-linear",
-         # "Hanes",
-         # "Lineweaver-Burk",
-         # "Eadie-Hofstee",
+          "Hanes",
+          "Lineweaver-Burk",
+          "Eadie-Hofstee",
           "Scatchard"
         ),
         selected = "Non-linear"
@@ -98,7 +98,7 @@ server <- function(input, output) {
   readData <- reactive({
     inputFile <- input$data
     if (is.null(inputFile)) {
-    read.csv("./Data/Scatchard perfect.csv") |> as.data.frame()
+      readxl::read_excel("./Data/SK_MMdata.xlsx", sheet = input$sheet) |> as.data.frame()
     } else {
       req(inputFile)
       (
