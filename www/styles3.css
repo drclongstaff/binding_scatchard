@@ -1,0 +1,38 @@
+h2{border-bottom: 1px dotted #000000; font-family: Helvetica; color: white; background-color:#264d00;font-size: 14;}
+h4{font-family: Verdana; color: #264d00; font-size: 12}
+h5{font-family: Verdana; color: #264d00; font-size: 11}
+
+
+
+body{background-color:#fcfffc; color:#1F1F1F;}
+
+div.well {
+  background-color: #FCFFFC;
+  border-radius: 20px;
+  box-shadow: inset -3px 3px 3px rgb(0, 0, 0, 0.2);
+}
+
+
+.nav-tabs>li>a {color:#264d00 ; font-size: 12pt;
+font-weight: bold;
+background-color:#f2ffe5;
+border-radius: 10px;
+border: 1.2px solid;
+}
+
+
+.shiny-input-container .radio input:checked {
+    border-color: gold;
+    background-color: gold;
+}
+
+form.well {
+  background-color: #f2ffe5;
+  height: 100%;
+  box-shadow: inset -3px 3px 3px rgb(0, 0, 0, 0.2);
+  margin: 0;
+  border-radius: 10px;
+  border: 1px solid;
+}
+
+

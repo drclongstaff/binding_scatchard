@@ -3,8 +3,8 @@
 library(shiny)
 library(tidyplots)
 
-ThisApp <- "Michaelis Menten curves and linear transformations"
-ThisVersion <- 0.5
+ThisApp <- "Binding isotherms and linear Scatchard plots"
+ThisVersion <- 0.7
 
 # Load functions
 source("./Functions/Functions_LoadandPlots.R")
@@ -60,9 +60,9 @@ ui <- fluidPage(
           plotOutput(outputId = "myplot"),
           h4(textOutput("text1")),
           h4("Results Table"),
-          tableOutput("resultsTable"),
-          helpText(h5("*Scatchard plots included for binding assays where V=Bound and S=Free ligand")),
-          helpText(h5("In this case Vmax=Max bound and Km=Kd"))
+          tableOutput("resultsTable")
+          #helpText(h5("*Scatchard plots included for binding assays where V=Bound and S=Free ligand")),
+          #helpText(h5("In this case Vmax=Max bound and Km=Kd"))
         ),
         tabPanel("Raw data", DT::DTOutput("contents")),
         tabPanel("Transformed data", DT::DTOutput("resultsTable2")),
@@ -174,9 +174,9 @@ server <- function(input, output) {
     procDat <- procDat()
     tabData <- tabData()
     switch(input$raw,
-      "Lineweaver-Burk" = linPlot(procDat, Sl, Vl),
-      "Hanes" = linPlot(procDat, Sh, Vh),
-      "Eadie-Hofstee" = linPlot(procDat, Se, Ve),
+     # "Lineweaver-Burk" = linPlot(procDat, Sl, Vl),
+     # "Hanes" = linPlot(procDat, Sh, Vh),
+      #"Eadie-Hofstee" = linPlot(procDat, Se, Ve),
       "Scatchard" = linPlot(procDat, Ss, Vs),
       "Non-linear" = mmPlot(procDat, S, V, as.numeric(tabData[1, 4]), as.numeric(tabData[1, 3]))
     )
@@ -203,35 +203,7 @@ server <- function(input, output) {
     S <- readData[[input$colmnamesx]]
     V <- readData[[input$colmnamesy]]
 
-    # Lineweaver-Burke
-    X.l <- 1 / S
-    Y.l <- 1 / V
-    LModl <- lm(Y.l ~ X.l)
-    slope.l <- coef(LModl)[2]
-    int.l <- coef(LModl)[1]
-    r.l <- signif(cor(X.l, Y.l), digits = 4)
-    Kmlm.l <- signif(slope.l / int.l, digits = 4)
-    Vmaxlm.l <- signif(1 / int.l, digits = 4)
-
-    # Hanes
-    X.h <- S
-    Y.h <- S / V
-    HModl <- lm(Y.h ~ X.h)
-    slope.h <- coef(HModl)[2]
-    int.h <- coef(HModl)[1]
-    r.h <- signif(cor(X.h, Y.h), digits = 4)
-    Kmlm.h <- signif(int.h / slope.h, digits = 4)
-    Vmaxlm.h <- signif(1 / slope.h, digits = 4)
-
-    # Eadie-Hofstee
-    X.e <- V / S
-    Y.e <- V
-    EModl <- lm(Y.e ~ X.e)
-    slope.e <- coef(EModl)[2]
-    int.e <- coef(EModl)[1]
-    r.e <- signif(cor(X.e, Y.e), digits = 4)
-    Kmlm.e <- signif(-slope.e, digits = 4)
-    Vmaxlm.e <- signif(int.e, digits = 4)
+   
 
     # Scatchard
     X.s <- V
@@ -252,11 +224,11 @@ server <- function(input, output) {
 
     tabData <- matrix(c(
       "Non-linear fit", "[S] vs V", Vmax, Km, crcNls,
-      "Linear fit Hanes", "[S] vs [S]/V", Vmaxlm.h, Kmlm.h, r.h,
-      "Linear fit Lineweaver-Burk", "1/[S] vs 1/V", Vmaxlm.l, Kmlm.l, r.l,
-      "Linear fit Eadie-Hofstee", "V/[S] vs V", Vmaxlm.e, Kmlm.e, r.e,
+     # "Linear fit Hanes", "[S] vs [S]/V", Vmaxlm.h, Kmlm.h, r.h,
+     # "Linear fit Lineweaver-Burk", "1/[S] vs 1/V", Vmaxlm.l, Kmlm.l, r.l,
+     # "Linear fit Eadie-Hofstee", "V/[S] vs V", Vmaxlm.e, Kmlm.e, r.e,
       "Linear fit Scatchard *", "Bound vs Bound/Free", Vmaxlm.s, Kmlm.s, r.s
-    ), byrow = TRUE, nrow = 5)
+    ), byrow = TRUE, nrow = 2)
     colnames(tabData) <- c("Fit", "plot x~y", "Vmax", "Km", "Correlation")
 
     # write.table(tabData, "clipboard", sep="\t", col.names=F, row.names=F)
