@@ -1,10 +1,10 @@
-# An app to analyse Michaelis Menten data
+# An app to analyse Binding curves and Scatchard plots
 
 library(shiny)
 library(tidyplots)
 
 ThisApp <- "Binding isotherms and linear Scatchard plots"
-ThisVersion <- 0.7
+ThisVersion <- 0.8
 
 # Load functions
 source("./Functions/Functions_LoadandPlots.R")
@@ -17,8 +17,9 @@ ui <- fluidPage(
   #   ".shiny-output-error { visibility: hidden; }",
   # ".shiny-output-error:before { visibility: hidden; }"
   # ),
-
-  titlePanel(h2(ThisApp, align = "center")),
+  #helpText("Binding"),
+  titlePanel(tags$h2(ThisApp)),# align = "center")),
+  
   sidebarLayout(
     sidebarPanel(
       tags$h4("Load your data"),
