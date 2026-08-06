@@ -34,9 +34,6 @@ ui <- fluidPage(
         inputId = "raw", label = tags$h4("Select plot"),
         choices = c(
           "Non-linear",
-         # "Hanes",
-         # "Lineweaver-Burk",
-         # "Eadie-Hofstee",
           "Scatchard"
         ),
         selected = "Non-linear"
@@ -62,8 +59,6 @@ ui <- fluidPage(
           h4(textOutput("text1")),
           h4("Results Table"),
           tableOutput("resultsTable")
-          #helpText(h5("Scatchard plots included for binding assays where V=Bound and S=Free ligand")),
-          #helpText(h5("In this case Vmax=Max bound and Km=Kd"))
         ),
         tabPanel("Raw data", DT::DTOutput("contents")),
         tabPanel("Transformed data", DT::DTOutput("resultsTable2")),
@@ -153,9 +148,6 @@ server <- function(input, output) {
 
     allDat <- signif(data.frame(
       "S" = S, "V" = V,
-      "Sh" = S, "Vh" = S / V,
-      "Se" = V / S, "Ve" = V,
-      "Sl" = 1 / S, "Vl" = 1 / V,
       "Ss" = V, "Vs" = V / S
     ), digits = 4)
     allDat
@@ -175,9 +167,6 @@ server <- function(input, output) {
     procDat <- procDat()
     tabData <- tabData()
     switch(input$raw,
-     # "Lineweaver-Burk" = linPlot(procDat, Sl, Vl),
-     # "Hanes" = linPlot(procDat, Sh, Vh),
-      #"Eadie-Hofstee" = linPlot(procDat, Se, Ve),
       "Scatchard" = linPlot(procDat, Ss, Vs),
       "Non-linear" = mmPlot(procDat, S, V, as.numeric(tabData[1, 4]), as.numeric(tabData[1, 3]))
     )

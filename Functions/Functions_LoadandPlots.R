@@ -33,8 +33,8 @@ linPlot <- function(aDF, xvar, yvar) {
   aDF |>
     tidyplot(x = {{ xvar }}, y = {{ yvar }}) |>
     adjust_title("Linear transform",face = "bold", fontsize = 18) |>
-    adjust_x_axis_title("X", face = "bold") |>
-    adjust_y_axis_title("Y", face = "bold") |>
+    adjust_x_axis_title("Bound", face = "bold") |>
+    adjust_y_axis_title("Bound/Free", face = "bold") |>
     add_curve_fit(method = "lm", se = FALSE, color = "purple4", linewidth = 0.75)
 }
 
@@ -49,7 +49,7 @@ mmPlot <- function(aDF, xvar, yvar, Km, Vmax) {
       linetype = "dotdash", 
       linewidth = 0.5
     ) |>
-    adjust_x_axis_title("[S]", face = "bold") |>
-    adjust_y_axis_title("V", face = "bold") |>
+    adjust_x_axis_title("Free", face = "bold") |>
+    adjust_y_axis_title("Bound", face = "bold") |>
     add_curve_fit(method = "nls", formula = y ~ SSmicmen(x, Vm, K), se = FALSE, colour = "purple4", linewidth = 0.75)
 }
