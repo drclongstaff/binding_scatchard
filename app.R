@@ -51,6 +51,10 @@ ui <- fluidPage(
       numericInput("Diss",
                    label = h5("Choose a Kd value"), value = 0.5),
       
+      sliderInput("jit", 
+                  label =h4( "Add noise"),
+                  min = 0, max = 0.1, value = 0.05),
+      
       actionButton("goCalc", "Click to update the new data"),
       tags$br(),
       tags$i("Please contact me with any comments on:"),
@@ -109,7 +113,8 @@ server <- function(input, output) {
   readData <- reactive({
     inputFile <- input$data
     if (is.null(inputFile)) {
-    read.csv("./Data/Scatchard perfect.csv") |> as.data.frame()
+    #read.csv("./Data/Scatchard perfect.csv") |> as.data.frame()
+      newRes()
     } else {
       req(inputFile)
       (
@@ -156,7 +161,7 @@ server <- function(input, output) {
     }
     req(input$colmnamesx, input$colmnamesy)
     req(readData())
-    readData <- readData()
+    readData <- adjData() #newRes() #readData()
 
     S <- readData[[input$colmnamesx]]
     V <- readData[[input$colmnamesy]]
@@ -168,6 +173,45 @@ server <- function(input, output) {
     allDat
   })
 
+  newRes<- reactive({
+    
+    input$goCalc
+    
+    A<-isolate(input$concA)
+    K<-isolate(input$Diss)
+    Be<-seq(input$concB[1], input$concB[2], length.out = 20)
+    B<-10^(Be)
+    xv<-1:length(B)
+    for (i in 1:length(B)){
+      b<-A+B[i]+K
+      c<-A*B[i]
+      x<-(b-(b^2-4*c)^0.5)/2
+      xv[i]<-x
+      xvn<-xv+rnorm(length(xv), 0, input$jit)
+      
+      #X<-round(xv, 5)
+      X<-round(xvn, 5)
+    }
+    Res<-cbind((B-X), X, B)
+    colnames(Res)<-c("Free", "Bound", "Added")
+    #write.table(Res, "clipboard", sep="\t", col.names=TRUE, row.names=F)
+    #write.table(Res, "Binding perfect.txt", sep="\t", col.names=TRUE, row.names=F)
+    
+    
+    
+    Res1<-data.frame(Res)
+  })
+  
+  adjData<-reactive({
+    if(is.null(input$colmnamesx)){return(NULL)} # To stop this section running and producing an error before the data has uploaded
+    if(input$gen) selectedData<-newRes()
+    else selectedData<-readData()
+    selectedData[,input$colmnamesy]<-selectedData[,input$colmnamesy]+rnorm(length(selectedData[,1]), 0, input$jit)
+    data.frame(selectedData)
+    
+  })
+  
+  
 
   output$myplot <- renderPlot({
     req(input$colmnamesx, input$colmnamesy)
@@ -203,7 +247,7 @@ server <- function(input, output) {
     # if(is.null(input$colmnamesx)){return(NULL)} # To stop this section running and producing an error before the data has uploaded
     req(input$colmnamesx, input$colmnamesy)
     req(readData())
-    readData <- readData()
+    readData <- newRes()#readData()
 
     S <- readData[[input$colmnamesx]]
     V <- readData[[input$colmnamesy]]
