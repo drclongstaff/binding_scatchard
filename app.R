@@ -38,6 +38,21 @@ ui <- fluidPage(
         ),
         selected = "Non-linear"
       ),
+      
+      checkboxInput(inputId= "gen", label = h4("Make a new set of data"), value = FALSE),
+      
+      numericInput("concA",
+                   label = h5("Choose a concentration of ligand A"), value = 1),
+      
+      sliderInput("concB", 
+                  label =h5( "Range of ligand B (log scale)"),
+                  min = -1.1, max = 2.2, value = c(-1, 1)),
+      
+      numericInput("Diss",
+                   label = h5("Choose a Kd value"), value = 0.5),
+      
+      actionButton("goCalc", "Click to update the new data"),
+      tags$br(),
       tags$i("Please contact me with any comments on:"),
       helpText(h5(
         ThisApp, "version", ThisVersion, " last accessed", Sys.Date(), "at",
@@ -213,13 +228,10 @@ server <- function(input, output) {
 
 
     tabData <- matrix(c(
-      "Non-linear fit", "[S] vs V", Vmax, Km, crcNls,
-     # "Linear fit Hanes", "[S] vs [S]/V", Vmaxlm.h, Kmlm.h, r.h,
-     # "Linear fit Lineweaver-Burk", "1/[S] vs 1/V", Vmaxlm.l, Kmlm.l, r.l,
-     # "Linear fit Eadie-Hofstee", "V/[S] vs V", Vmaxlm.e, Kmlm.e, r.e,
-      "Linear fit Scatchard *", "Bound vs Bound/Free", Vmaxlm.s, Kmlm.s, r.s
+      "Non-linear fit", "Free vs Bound", Vmax, Km, crcNls,
+      "Linear fit Scatchard ", "Bound vs Bound/Free", Vmaxlm.s, Kmlm.s, r.s
     ), byrow = TRUE, nrow = 2)
-    colnames(tabData) <- c("Fit", "plot x~y", "Vmax", "Km", "Correlation")
+    colnames(tabData) <- c("Fit", "plot x~y", "Bmax", "Kd", "Correlation")
 
     # write.table(tabData, "clipboard", sep="\t", col.names=F, row.names=F)
 
