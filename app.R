@@ -41,19 +41,28 @@ ui <- fluidPage(
       
       checkboxInput(inputId= "gen", label = h4("Make a new set of data"), value = FALSE),
       
-      numericInput("concA",
-                   label = h5("Choose a concentration of ligand A"), value = 1),
+      fluidRow(
+        column(6,numericInput("concA",
+                   label = h5("Choose a concentration of ligand A"), value = 1)),
+        column(6,numericInput("Diss",
+                              label = h5("Choose a Kd value"), value = 0.5))
+      ),
+      #sliderInput("concB", 
+                 # label =h5( "Range of ligand B (log scale)"),
+                 # min = -1.1, max = 2.2, value = c(-1, 1)),
       
-      sliderInput("concB", 
-                  label =h5( "Range of ligand B (log scale)"),
-                  min = -1.1, max = 2.2, value = c(-1, 1)),
+      fluidRow(
+      column(6,numericInput("B1", label = h5("starting [B]"), value=0.2)),
+      column(6,numericInput("B2", label = h5("ending [B]"), value=10))),
+      fluidRow(
+      column(6,numericInput("npoints", label = h5("number of points"), value = 20)),
+      column(6, numericInput("jit", h5("add noise"), value = 0, min=0, max=1, step = 0.01))
       
-      numericInput("Diss",
-                   label = h5("Choose a Kd value"), value = 0.5),
+      ),
       
-      sliderInput("jit", 
-                  label =h4( "Add noise"),
-                  min = 0, max = 0.1, value = 0),
+      #sliderInput("jit", 
+                 # label =h4( "Add noise"),
+                 # min = 0, max = 0.1, value = 0),
       
       actionButton("goCalc", "Click to update the new data"),
       tags$br(),
@@ -181,8 +190,9 @@ server <- function(input, output) {
     A<-isolate(input$concA)
     K<-isolate(input$Diss)
     G <- isolate(input$jit)
-    Be<-seq(input$concB[1], input$concB[2], length.out = 20)
-    B<-10^(Be)
+    #Be<-seq(input$concB[1], input$concB[2], length.out = 20)
+    #B<-10^(Be)
+    B <- seq(input$B1, input$B2, length.out=input$npoints)
     xv<-1:length(B)
     for (i in 1:length(B)){
       b<-A+B[i]+K
