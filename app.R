@@ -53,7 +53,7 @@ ui <- fluidPage(
       
       sliderInput("jit", 
                   label =h4( "Add noise"),
-                  min = 0, max = 0.1, value = 0.05),
+                  min = 0, max = 0.1, value = 0),
       
       actionButton("goCalc", "Click to update the new data"),
       tags$br(),
@@ -161,7 +161,8 @@ server <- function(input, output) {
     }
     req(input$colmnamesx, input$colmnamesy)
     req(readData())
-    readData <- adjData() #newRes() #readData()
+    
+    readData <- newRes() #adjData() #newRes() #readData()
 
     S <- readData[[input$colmnamesx]]
     V <- readData[[input$colmnamesy]]
@@ -179,6 +180,7 @@ server <- function(input, output) {
     
     A<-isolate(input$concA)
     K<-isolate(input$Diss)
+    G <- isolate(input$jit)
     Be<-seq(input$concB[1], input$concB[2], length.out = 20)
     B<-10^(Be)
     xv<-1:length(B)
@@ -187,10 +189,11 @@ server <- function(input, output) {
       c<-A*B[i]
       x<-(b-(b^2-4*c)^0.5)/2
       xv[i]<-x
-      xvn<-xv+rnorm(length(xv), 0, input$jit)
+      xvn<-xv+rnorm(length(xv), 0, G)
       
       #X<-round(xv, 5)
-      X<-round(xvn, 5)
+      if(input$gen) X<-round(xvn, 5)
+      else X <- round(xv, 5)
     }
     Res<-cbind((B-X), X, B)
     colnames(Res)<-c("Free", "Bound", "Added")
@@ -204,9 +207,10 @@ server <- function(input, output) {
   
   adjData<-reactive({
     if(is.null(input$colmnamesx)){return(NULL)} # To stop this section running and producing an error before the data has uploaded
-    if(input$gen) selectedData<-newRes()
+    #if(input$gen) selectedData<-newRes()
+    if(input$gen) selectedData<-procDat()[,input$colmnamesy]+rnorm(length(selectedData[,1]), 0, input$jit)
     else selectedData<-readData()
-    selectedData[,input$colmnamesy]<-selectedData[,input$colmnamesy]+rnorm(length(selectedData[,1]), 0, input$jit)
+    #selectedData[,input$colmnamesy]<-selectedData[,input$colmnamesy]+rnorm(length(selectedData[,1]), 0, input$jit)
     data.frame(selectedData)
     
   })
@@ -223,11 +227,11 @@ server <- function(input, output) {
     if (is.null(input$colmnamesx)) {
       return()
     }
-    procDat <- procDat()
+    plotDat <- procDat()
     tabData <- tabData()
     switch(input$raw,
-      "Scatchard" = linPlot(procDat, Ss, Vs),
-      "Non-linear" = mmPlot(procDat, S, V, as.numeric(tabData[1, 4]), as.numeric(tabData[1, 3]))
+      "Scatchard" = linPlot(plotDat, Ss, Vs),
+      "Non-linear" = mmPlot(plotDat, S, V, as.numeric(tabData[1, 4]), as.numeric(tabData[1, 3]))
     )
   })
 
