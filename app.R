@@ -36,16 +36,16 @@ ui <- fluidPage(
           "Non-linear",
           "Scatchard"
         ),
-        selected = "Non-linear"
+        selected = "Non-linear", inline = TRUE
       ),
       
       checkboxInput(inputId= "gen", label = h4("Make a new set of data"), value = FALSE),
       
       fluidRow(
         column(6,numericInput("concA",
-                   label = h5("Choose a concentration of ligand A"), value = 1)),
+                   label = h5("Conc of ligand A"), value = 1)),
         column(6,numericInput("Diss",
-                              label = h5("Choose a Kd value"), value = 0.5))
+                              label = h5("Kd value"), value = 0.5))
       ),
       #sliderInput("concB", 
                  # label =h5( "Range of ligand B (log scale)"),
@@ -190,9 +190,12 @@ server <- function(input, output) {
     A<-isolate(input$concA)
     K<-isolate(input$Diss)
     G <- isolate(input$jit)
+    B1 <- isolate(input$B1)
+    B2 <- isolate(input$B2)
+    L <- isolate(input$npoints)
     #Be<-seq(input$concB[1], input$concB[2], length.out = 20)
     #B<-10^(Be)
-    B <- seq(input$B1, input$B2, length.out=input$npoints)
+    B <- seq(B1, B2, length.out=L)
     xv<-1:length(B)
     for (i in 1:length(B)){
       b<-A+B[i]+K
