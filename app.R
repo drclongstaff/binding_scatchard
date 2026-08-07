@@ -43,19 +43,16 @@ ui <- fluidPage(
       
       fluidRow(
         column(6,numericInput("concA",
-                   label = h5("Conc of ligand A"), value = 1)),
+                   label = h5("Conc of ligand A"), value = 1, min = 0, step = 0.05)),
         column(6,numericInput("Diss",
-                              label = h5("Kd value"), value = 0.5))
+                              label = h5("Kd value"), value = 0.5, min=0, step = 0.01))
       ),
-      #sliderInput("concB", 
-                 # label =h5( "Range of ligand B (log scale)"),
-                 # min = -1.1, max = 2.2, value = c(-1, 1)),
       
       fluidRow(
-      column(6,numericInput("B1", label = h5("starting [B]"), value=0.2)),
-      column(6,numericInput("B2", label = h5("ending [B]"), value=10))),
+      column(6,numericInput("B1", label = h5("starting [B]"), value=0.2, min=0, step = 0.1)),
+      column(6,numericInput("B2", label = h5("ending [B]"), value=10, min = 0, step = 0.5))),
       fluidRow(
-      column(6,numericInput("npoints", label = h5("number of points"), value = 20)),
+      column(6,numericInput("npoints", label = h5("number of points"), value = 10, min=3, step = 1)),
       column(6, numericInput("jit", h5("add noise"), value = 0, min=0, max=1, step = 0.01))
       
       ),
@@ -205,8 +202,8 @@ server <- function(input, output) {
       xvn<-xv+rnorm(length(xv), 0, G)
       
       #X<-round(xv, 5)
-      if(input$gen) X<-round(xvn, 5)
-      else X <- round(xv, 5)
+      if(input$gen) X<-xvn
+      else X <- xv
     }
     
     Res1 <- data.frame("Free"=round(B-X,3), "Bound"=round(X,3), "Added"=round(B,3))
