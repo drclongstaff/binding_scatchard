@@ -208,14 +208,9 @@ server <- function(input, output) {
       if(input$gen) X<-round(xvn, 5)
       else X <- round(xv, 5)
     }
-    Res<-cbind((B-X), X, B)
-    colnames(Res)<-c("Free", "Bound", "Added")
-    #write.table(Res, "clipboard", sep="\t", col.names=TRUE, row.names=F)
-    #write.table(Res, "Binding perfect.txt", sep="\t", col.names=TRUE, row.names=F)
     
+    Res1 <- data.frame("Free"=round(B-X,3), "Bound"=round(X,3), "Added"=round(B,3))
     
-    
-    Res1<-data.frame(Res)
   })
   
   adjData<-reactive({
@@ -306,7 +301,7 @@ server <- function(input, output) {
 
   output$resultsTable2 <- DT::renderDT({
     req(procDat())
-    procDat()
+    round(procDat(), 4)
   })
 }
 # Run the application
