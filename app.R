@@ -192,30 +192,12 @@ server <- function(input, output) {
     L <- isolate(input$npoints)
   
     B <- exp(seq(log(B1), log(B2), length.out = L))
-    
-    xv<-1:length(B)
-    for (i in 1:length(B)){
-      b<-A+B[i]+K
-      c<-A*B[i]
-      xv[i]<-(b-(b^2-4*c)^0.5)/2
-      xv
-    }
-    if(input$gen) X <- xv+rnorm(length(xv), 0, G)
-    else X <- xv
+    if(input$gen) G <- G
+    else G <- 0
+    X <- resGen(A, B, K, G)
     Res1 <- data.frame("Free"=round(B-X,8), "Bound"=round(X,8), "Added"=round(B,8))
     
   })
-  
-  adjData<-reactive({
-    if(is.null(input$colmnamesx)){return(NULL)} # To stop this section running and producing an error before the data has uploaded
-    #if(input$gen) selectedData<-newRes()
-    if(input$gen) selectedData<-procDat()[,input$colmnamesy]+rnorm(length(selectedData[,1]), 0, input$jit)
-    else selectedData<-readData()
-    #selectedData[,input$colmnamesy]<-selectedData[,input$colmnamesy]+rnorm(length(selectedData[,1]), 0, input$jit)
-    data.frame(selectedData)
-    
-  })
-  
   
 
   output$myplot <- renderPlot({

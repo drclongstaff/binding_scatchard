@@ -53,3 +53,10 @@ mmPlot <- function(aDF, xvar, yvar, Km, Vmax) {
     adjust_y_axis_title("Bound", face = "bold") |>
     add_curve_fit(method = "nls", formula = y ~ SSmicmen(x, Vm, K), se = FALSE, colour = "purple4", linewidth = 0.75)
 }
+
+resGen <- function(A, B, K, G){
+  b<-A+B+K
+  c<-A*B
+  x<-(b-(b^2-4*c)^0.5)/2
+  X <- x+rnorm(length(x), 0, G)
+}
