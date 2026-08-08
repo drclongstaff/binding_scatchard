@@ -43,13 +43,13 @@ ui <- fluidPage(
       
       fluidRow(
         column(6,numericInput("concA",
-                   label = h5("Conc of ligand A"), value = 1, min = 0, step = 0.05)),
+                   label = h5("Conc of ligand A"), value = 0.1, min = 0, step = 0.05)),
         column(6,numericInput("Diss",
                               label = h5("Kd value"), value = 0.5, min=0, step = 0.01))
       ),
       
       fluidRow(
-      column(6,numericInput("B1", label = h5("starting [B]"), value=0.2, min=0, step = 0.1)),
+      column(6,numericInput("B1", label = h5("starting [B]"), value=0.1, min=0, step = 0.1)),
       column(6,numericInput("B2", label = h5("ending [B]"), value=10, min = 0, step = 0.5))),
       fluidRow(
       column(6,numericInput("npoints", label = h5("number of points"), value = 10, min=3, step = 1)),
