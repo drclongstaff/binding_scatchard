@@ -218,18 +218,6 @@ server <- function(input, output) {
     )
   })
 
-  S.dat <- reactive({
-    readData <- readData()
-
-    S <- readData()[[input$colmnamesx]]
-    S
-  })
-
-  V.dat <- reactive({
-    V <- readData()[[input$colmnamesy]]
-    V
-  })
-
   tabData <- reactive({
     # if(is.null(input$colmnamesx)){return(NULL)} # To stop this section running and producing an error before the data has uploaded
     req(input$colmnamesx, input$colmnamesy)
