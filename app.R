@@ -186,27 +186,32 @@ server <- function(input, output) {
     
     A<-isolate(input$concA)
     K<-isolate(input$Diss)
-    G <- isolate(input$jit)
+    G <- isolate(input$jit*input$concA)
     B1 <- isolate(input$B1)
     B2 <- isolate(input$B2)
     L <- isolate(input$npoints)
-    #Be<-seq(input$concB[1], input$concB[2], length.out = 20)
-    #B<-10^(Be)
-    B <- seq(B1, B2, length.out=L)
+  
+    B <- exp(seq(log(B1), log(B2), length.out = L))
+    
     xv<-1:length(B)
     for (i in 1:length(B)){
       b<-A+B[i]+K
       c<-A*B[i]
-      x<-(b-(b^2-4*c)^0.5)/2
-      xv[i]<-x
-      xvn<-xv+rnorm(length(xv), 0, G)
+      xv[i]<-(b-(b^2-4*c)^0.5)/2
+      #xv <- x[i]
+      #if (input$gen) X <- xv+rnorm(length(xv), 0, G)
+      #else X <- xv
+      
       
       #X<-round(xv, 5)
-      if(input$gen) X<-xvn
-      else X <- xv
+      #if(input$gen) X<-xvn
+      #else X <- xv
+      #X <- xv
+      xv
     }
-    
-    Res1 <- data.frame("Free"=round(B-X,3), "Bound"=round(X,3), "Added"=round(B,3))
+    if(input$gen) X <- xv+rnorm(length(xv), 0, G)
+    else X <- xv
+    Res1 <- data.frame("Free"=round(B-X,8), "Bound"=round(X,8), "Added"=round(B,8))
     
   })
   
