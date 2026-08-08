@@ -198,15 +198,6 @@ server <- function(input, output) {
       b<-A+B[i]+K
       c<-A*B[i]
       xv[i]<-(b-(b^2-4*c)^0.5)/2
-      #xv <- x[i]
-      #if (input$gen) X <- xv+rnorm(length(xv), 0, G)
-      #else X <- xv
-      
-      
-      #X<-round(xv, 5)
-      #if(input$gen) X<-xvn
-      #else X <- xv
-      #X <- xv
       xv
     }
     if(input$gen) X <- xv+rnorm(length(xv), 0, G)
