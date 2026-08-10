@@ -119,8 +119,8 @@ server <- function(input, output) {
   readData <- reactive({
     inputFile <- input$data
     if (is.null(inputFile)) {
-    #read.csv("./Data/Scatchard perfect.csv") |> as.data.frame()
-      newRes()
+    read.csv("./Data/Scatchard perfect.csv") |> as.data.frame()
+      #newRes()
     } else {
       req(inputFile)
       (
@@ -156,6 +156,7 @@ server <- function(input, output) {
 
   output$contents <- DT::renderDT({
     readData()
+    #procDat()
   })
 
   procDat <- reactive({
@@ -167,8 +168,10 @@ server <- function(input, output) {
     }
     req(input$colmnamesx, input$colmnamesy)
     req(readData())
+    #if(input$gen) readData <- readData()
+    #else readData <- procDat()
     
-    readData <- newRes() #adjData() #newRes() #readData()
+    readData <-  readData()
 
     S <- readData[[input$colmnamesx]]
     V <- readData[[input$colmnamesy]]
@@ -196,6 +199,7 @@ server <- function(input, output) {
     else G <- 0
     X <- resGen(A, B, K, G)
     Res1 <- data.frame("Free"=round(B-X,8), "Bound"=round(X,8), "Added"=round(B,8))
+    #Res1 <- data.frame("Free"=B-X, "Bound"=X, "Added"=B)
     
   })
   
@@ -210,6 +214,7 @@ server <- function(input, output) {
     if (is.null(input$colmnamesx)) {
       return()
     }
+    #plotDat <- procDat()
     plotDat <- procDat()
     tabData <- tabData()
     switch(input$raw,
@@ -222,7 +227,7 @@ server <- function(input, output) {
     # if(is.null(input$colmnamesx)){return(NULL)} # To stop this section running and producing an error before the data has uploaded
     req(input$colmnamesx, input$colmnamesy)
     req(readData())
-    readData <- newRes()#readData()
+    readData <- readData()
 
     S <- readData[[input$colmnamesx]]
     V <- readData[[input$colmnamesy]]
@@ -264,7 +269,7 @@ server <- function(input, output) {
 
   output$resultsTable2 <- DT::renderDT({
     req(procDat())
-    round(procDat(), 4)
+    procDat()
   })
 }
 # Run the application
