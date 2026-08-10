@@ -119,8 +119,8 @@ server <- function(input, output) {
   readData <- reactive({
     inputFile <- input$data
     if (is.null(inputFile)) {
-    read.csv("./Data/Scatchard perfect.csv") |> as.data.frame()
-      #newRes()
+    #read.csv("./Data/Scatchard perfect.csv") |> as.data.frame()
+      newRes()
     } else {
       req(inputFile)
       (
@@ -168,10 +168,10 @@ server <- function(input, output) {
     }
     req(input$colmnamesx, input$colmnamesy)
     req(readData())
-    #if(input$gen) readData <- readData()
-    #else readData <- procDat()
+    if(input$gen) readData <- newRes()
+    else readData <- readData()
     
-    readData <-  readData()
+    #readData <-  readData()
 
     S <- readData[[input$colmnamesx]]
     V <- readData[[input$colmnamesy]]
@@ -207,15 +207,15 @@ server <- function(input, output) {
   output$myplot <- renderPlot({
     req(input$colmnamesx, input$colmnamesy)
     req(procDat())
-    req(tabData())
+    #req(tabData())
     if (is.null(input$colmnamesy)) {
       return()
     }
     if (is.null(input$colmnamesx)) {
       return()
     }
-    #plotDat <- procDat()
     plotDat <- procDat()
+    #plotDat <- readData()
     tabData <- tabData()
     switch(input$raw,
       "Scatchard" = linPlot(plotDat, Ss, Vs),
@@ -227,6 +227,7 @@ server <- function(input, output) {
     # if(is.null(input$colmnamesx)){return(NULL)} # To stop this section running and producing an error before the data has uploaded
     req(input$colmnamesx, input$colmnamesy)
     req(readData())
+    #readData <- procDat()
     readData <- readData()
 
     S <- readData[[input$colmnamesx]]
@@ -263,7 +264,7 @@ server <- function(input, output) {
   })
 
   output$resultsTable <- renderTable({
-    req(tabData())
+    #req(tabData())
     tabData()
   })
 
