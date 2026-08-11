@@ -264,8 +264,8 @@ server <- function(input, output) {
 
 
     tabData <- matrix(c(
-      "Non-linear fit", "Free vs Bound", Vmax, Km, crcNls,
-      "Linear fit Scatchard ", "Bound vs Bound/Free", Vmaxlm.s, Kmlm.s, r.s
+      "Non-linear fit", paste0(input$colmnamesx," vs Bound"), Vmax, Km, crcNls,
+      "Linear fit Scatchard ", paste0("Bound vs Bound/", input$colmnamesx), Vmaxlm.s, Kmlm.s, r.s
     ), byrow = TRUE, nrow = 2)
     colnames(tabData) <- c("Fit", "plot x~y", "Bmax", "Kd", "Correlation")
 
