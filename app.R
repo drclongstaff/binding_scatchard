@@ -119,8 +119,8 @@ server <- function(input, output) {
   readData <- reactive({
     inputFile <- input$data
     if (is.null(inputFile)) {
-    #read.csv("./Data/Scatchard perfect.csv") |> as.data.frame()
-      newRes()
+    read.csv("./Data/Scatchard perfect.csv") |> as.data.frame()
+      #newRes()
     } else {
       req(inputFile)
       (
@@ -135,28 +135,35 @@ server <- function(input, output) {
     }
   })
 
-
+  selectData <- reactive({
+    if(input$gen) selectData <- newRes()
+    else selectData <- readData()
+  })
+  
   var <- reactive({
-    mycols <- colnames(readData())
+    mycols <- colnames(selectData()) #(readData())
   })
 
   output$whatx <- renderUI({
     selectInput("colmnamesx",
       label = h4("Select x axis data"),
-      choices = var(), selected = colnames(readData()[1])
+      #choices = var(), selected = colnames(readData()[1])
+      choices = var(), selected = colnames(selectData()[1])
     )
   })
 
   output$whaty <- renderUI({
     selectInput("colmnamesy",
       label = h4("Select y axis data"),
-      choices = var(), selected = colnames(readData()[2])
+      #choices = var(), selected = colnames(readData()[2])
+      choices = var(), selected = colnames(selectData()[2])
     )
   })
 
   output$contents <- DT::renderDT({
-    readData()
+    #readData()
     #procDat()
+    selectData()
   })
 
   procDat <- reactive({
@@ -168,10 +175,11 @@ server <- function(input, output) {
     }
     req(input$colmnamesx, input$colmnamesy)
     req(readData())
-    if(input$gen) readData <- newRes()
-    else readData <- readData()
+    #if(input$gen) readData <- newRes()
+    #else readData <- readData()
     
     #readData <-  readData()
+    readData <- selectData()
 
     S <- readData[[input$colmnamesx]]
     V <- readData[[input$colmnamesy]]
@@ -195,8 +203,10 @@ server <- function(input, output) {
     L <- isolate(input$npoints)
   
     B <- exp(seq(log(B1), log(B2), length.out = L))
-    if(input$gen) G <- G
-    else G <- 0
+    #if(input$gen) G <- G
+    #else G <- 0
+    #if(input$gen) X <- resGen(A, B, K, G)
+    #else NULL
     X <- resGen(A, B, K, G)
     Res1 <- data.frame("Free"=round(B-X,8), "Bound"=round(X,8), "Added"=round(B,8))
     #Res1 <- data.frame("Free"=B-X, "Bound"=X, "Added"=B)
@@ -228,7 +238,8 @@ server <- function(input, output) {
     req(input$colmnamesx, input$colmnamesy)
     req(readData())
     #readData <- procDat()
-    readData <- readData()
+    #readData <- readData()
+    readData <- selectData()
 
     S <- readData[[input$colmnamesx]]
     V <- readData[[input$colmnamesy]]
@@ -271,6 +282,7 @@ server <- function(input, output) {
   output$resultsTable2 <- DT::renderDT({
     req(procDat())
     procDat()
+    #selectData()
   })
 }
 # Run the application
