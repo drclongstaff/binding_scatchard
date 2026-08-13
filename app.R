@@ -185,8 +185,8 @@ server <- function(input, output) {
     V <- readData[[input$colmnamesy]]
 
     allDat <- signif(data.frame(
-      "S" = S, "V" = V,
-      "Ss" = V, "Vs" = V / S
+      "X" = S, "Y" = V,
+      "Xs" = V, "Ys" = V / S
     ), digits = 4)
     allDat
   })
@@ -228,8 +228,10 @@ server <- function(input, output) {
     #plotDat <- readData()
     tabData <- tabData()
     switch(input$raw,
-      "Scatchard" = linPlot(plotDat, Ss, Vs, input$colmnamesx),
-      "Non-linear" = mmPlot(plotDat, S, V, as.numeric(tabData[1, 4]), as.numeric(tabData[1, 3]), input$colmnamesx)
+      #"Scatchard" = linPlot(plotDat, Ss, Vs, input$colmnamesx),
+      #"Non-linear" = mmPlot(plotDat, S, V, as.numeric(tabData[1, 4]), as.numeric(tabData[1, 3]), input$colmnamesx)
+      "Scatchard" = linPlot(plotDat, Xs, Ys, input$colmnamesx),
+      "Non-linear" = mmPlot(plotDat, X, Y, as.numeric(tabData[1, 4]), as.numeric(tabData[1, 3]), input$colmnamesx)
     )
   })
 
