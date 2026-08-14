@@ -33,29 +33,16 @@ ui <- fluidPage(
       uiOutput("whatx"),
       uiOutput("whaty"),
 
-
-      
-      tags$h4("Non-linear plot or Scatchard transformation"),
-      fluidRow(
-        radioGroupButtons(
-          inputId = "raw",
-          label = NULL,
-          choices = c(
-            "Non-linear",
-            "Scatchard"
-          ),
-          selected = "Non-linear",
-          status = "success",
-          individual = FALSE,
-          size = "lg"
-          
-        )
-      ),
-      
-      
+    fluidRow(column(12, helpText("_______________________________________________"))),
       
       # This section calculates a new set of data from the numeric inputs for A+B=AB
-      checkboxInput(inputId = "gen", label = h4("Make a new set of data"), value = FALSE),
+      #checkboxInput(inputId = "gen", label = h4("Make a new set of data"), value = FALSE),
+     
+       prettyCheckbox(
+        inputId = "gen",  label = "Make a new set of data",  icon = icon("check"), animation = "tada",
+        outline = TRUE, thick = TRUE, shape = "curve", bigger = TRUE, fill=TRUE, status = "danger", plain = TRUE
+      ),
+      
       fluidRow(
         column(6, numericInput("concA",
           label = h5("Conc of ligand A"), value = 0.1, min = 0, step = 0.05
@@ -74,16 +61,18 @@ ui <- fluidPage(
       ),
 
       # New data is calculated only on pressing this button
-      actionButton("goCalc", "Click to update the new data"),
+      actionButton("goCalc", h5("Click to update the new data")),
+               #)),
       tags$br(),
 
       # Contact info and links to code
+      tags$br(),
       tags$i("Please contact me with any comments on:"),
       helpText(h5(
         ThisApp, "version", ThisVersion, " last accessed", Sys.Date(), "at",
         tags$a(href = "mailto: drclongstaff@gmail.com", "drclongstaff@gmail.com")
       )),
-      tags$br(),
+      
       "Code can be found on my github site:",
       tags$a(href = "https://github.com/drclongstaff/", "here"),
       tags$br(),
@@ -97,6 +86,22 @@ ui <- fluidPage(
         type = "tab",
         tabPanel("Plot",
           align = "center",
+          tags$h4("Non-linear plot or Scatchard transformation"),
+          fluidRow(
+            radioGroupButtons(
+              inputId = "raw",
+              label = NULL,
+              choices = c(
+                "Non-linear",
+                "Scatchard"
+              ),
+              selected = "Non-linear",
+              status = "success",
+              individual = FALSE,
+              size = "lg"
+              
+            )
+          ),
           plotOutput(outputId = "myplot"),
           h4(textOutput("text1")),
           h4("Results Table"),
@@ -214,7 +219,9 @@ server <- function(input, output) {
 
   # A new set of results is calculated from inputs and resGen function on goCalc activation
   newRes <- reactive({
-    input$goCalc
+    
+    if(input$gen) input$goCalc
+    else NULL
 
     A <- isolate(input$concA)
     K <- isolate(input$Diss)
