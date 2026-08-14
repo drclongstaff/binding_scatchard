@@ -2,6 +2,7 @@
 
 library(shiny)
 library(tidyplots)
+library(shinyWidgets)
 
 ThisApp <- "Binding isotherms and linear Scatchard plots"
 ThisVersion <- 0.8
@@ -32,16 +33,27 @@ ui <- fluidPage(
       uiOutput("whatx"),
       uiOutput("whaty"),
 
-      # Select non-linear plot or Scatchard transformation
-      radioButtons(
-        inputId = "raw", label = tags$h4("Select plot"),
-        choices = c(
-          "Non-linear",
-          "Scatchard"
-        ),
-        selected = "Non-linear", inline = TRUE
-      ),
 
+      
+      tags$h4("Non-linear plot or Scatchard transformation"),
+      fluidRow(
+        radioGroupButtons(
+          inputId = "raw",
+          label = NULL,
+          choices = c(
+            "Non-linear",
+            "Scatchard"
+          ),
+          selected = "Non-linear",
+          status = "success",
+          individual = FALSE,
+          size = "lg"
+          
+        )
+      ),
+      
+      
+      
       # This section calculates a new set of data from the numeric inputs for A+B=AB
       checkboxInput(inputId = "gen", label = h4("Make a new set of data"), value = FALSE),
       fluidRow(
