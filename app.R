@@ -183,24 +183,15 @@ server <- function(input, output) {
     selectData()
   })
 
-  #
+  #Process the selected data to add the Scatchard transform
   procDat <- reactive({
-    if (is.null(input$colmnamesy)) {
-      return()
-    }
-    if (is.null(input$colmnamesx)) {
-      return()
-    }
-    req(input$colmnamesx, input$colmnamesy)
-    req(readData())
-    #if(input$gen) readData <- newRes()
-    #else readData <- readData()
     
-    #readData <-  readData()
-    readData <- selectData()
+    req(selectData())
 
-    S <- readData[[input$colmnamesx]]
-    V <- readData[[input$colmnamesy]]
+    theData <- selectData()
+
+    S <- theData[[input$colmnamesx]]
+    V <- theData[[input$colmnamesy]]
 
     allDat <- signif(data.frame(
       "X" = S, "Y" = V,
@@ -209,6 +200,7 @@ server <- function(input, output) {
     allDat
   })
 
+  #A new set of results is calculated from inputs and resGen function on goCalc activation
   newRes<- reactive({
     
     input$goCalc
@@ -219,55 +211,43 @@ server <- function(input, output) {
     B1 <- isolate(input$B1)
     B2 <- isolate(input$B2)
     L <- isolate(input$npoints)
-  
+    #Make a log sequence of concentrations of B
     B <- exp(seq(log(B1), log(B2), length.out = L))
-    #if(input$gen) G <- G
-    #else G <- 0
-    #if(input$gen) X <- resGen(A, B, K, G)
-    #else NULL
+    #Call the external function resGen
     X <- resGen(A, B, K, G)
+    #Set up the dataframe of results
     Res1 <- data.frame("Free"=round(B-X,8), "Bound"=round(X,8), "Added"=round(B,8))
-    #Res1 <- data.frame("Free"=B-X, "Bound"=X, "Added"=B)
     
   })
   
-
+  #Plots are generated using external functions for non-linear or linear plots
   output$myplot <- renderPlot({
-    req(input$colmnamesx, input$colmnamesy)
+    
+    req(tabData())
     req(procDat())
-    #req(tabData())
-    if (is.null(input$colmnamesy)) {
-      return()
-    }
-    if (is.null(input$colmnamesx)) {
-      return()
-    }
+    
+    #procDat for plotting and tabData for added lines
     plotDat <- procDat()
-    #plotDat <- readData()
     tabData <- tabData()
     switch(input$raw,
-      #"Scatchard" = linPlot(plotDat, Ss, Vs, input$colmnamesx),
-      #"Non-linear" = mmPlot(plotDat, S, V, as.numeric(tabData[1, 4]), as.numeric(tabData[1, 3]), input$colmnamesx)
       "Scatchard" = linPlot(plotDat, Xs, Ys, input$colmnamesx),
       "Non-linear" = mmPlot(plotDat, X, Y, as.numeric(tabData[1, 4]), as.numeric(tabData[1, 3]), input$colmnamesx)
     )
+    
   })
 
+  #This is the summary table below the plots
   tabData <- reactive({
-    if(is.null(input$colmnamesx)){return(NULL)} # To stop this section running and producing an error before the data has uploaded
-    req(input$colmnamesx, input$colmnamesy)
-    req(readData())
+    req(input$colmnamesx) #These definitely  seem to help prevent temporary error
+    req(input$colmnamesy)
     req(selectData())
-    #readData <- procDat()
-    #readData <- readData()
-    readData <- selectData()
+    
+    theData <- selectData()
 
-    S <- readData[[input$colmnamesx]]
-    V <- readData[[input$colmnamesy]]
+    S <- theData[[input$colmnamesx]]
+    V <- theData[[input$colmnamesy]]
 
-   
-
-    # Scatchard
+    # Linear Scatchard transformation
     X.s <- V
     Y.s <- V / S
     EModl <- lm(Y.s ~ X.s)
@@ -277,12 +257,12 @@ server <- function(input, output) {
     Kmlm.s <- signif(-1 / slope.s, digits = 4)
     Vmaxlm.s <- signif(int.s * Kmlm.s, digits = 4)
 
+    #Non-linear fitting using SSmicmen
     fitMM <- nls(V ~ SSmicmen(S, Vm, K))
     fitted <- predict(fitMM)
     Vmax <- signif(coef(fitMM)[1], digits = 4)
     Km <- signif(coef(fitMM)[2], digits = 4)
     crcNls <- signif(cor(V, fitted), digits = 4)
-
 
     tabData <- matrix(c(
       "Non-linear fit", paste0(input$colmnamesx," vs Bound"), Vmax, Km, crcNls,
@@ -290,20 +270,20 @@ server <- function(input, output) {
     ), byrow = TRUE, nrow = 2)
     colnames(tabData) <- c("Fit", "plot x~y", "Bmax", "Kd", "Correlation")
 
-    # write.table(tabData, "clipboard", sep="\t", col.names=F, row.names=F)
-
     tabData
+    
   })
 
+  #Output the results summary table
   output$resultsTable <- renderTable({
-    #req(tabData())
+    req(tabData())
     tabData()
   })
 
+  #Output the raw and transformed data in tab 3
   output$resultsTable2 <- DT::renderDT({
     req(procDat())
     procDat()
-    #selectData()
   })
 }
 # Run the application
