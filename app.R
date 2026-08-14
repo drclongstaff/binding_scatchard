@@ -17,9 +17,9 @@ ui <- fluidPage(
   #   ".shiny-output-error { visibility: hidden; }",
   # ".shiny-output-error:before { visibility: hidden; }"
   # ),
-  #helpText("Binding"),
-  titlePanel(tags$h2(ThisApp)),# align = "center")),
-  
+  # helpText("Binding"),
+  titlePanel(tags$h2(ThisApp)), # align = "center")),
+
   sidebarLayout(
     sidebarPanel(
       tags$h4("Load your data"),
@@ -28,11 +28,11 @@ ui <- fluidPage(
         column(6, fileInput("data", label = "Select data", accept = c(".csv", ".txt", ".xlsx"))),
         column(5, numericInput("sheet", "Excel sheet", value = 1, min = 1, step = 1))
       ),
-      #Select the columns of data from the file to use
+      # Select the columns of data from the file to use
       uiOutput("whatx"),
       uiOutput("whaty"),
-      
-      #Select non-linear plot or Scatchard transformation
+
+      # Select non-linear plot or Scatchard transformation
       radioButtons(
         inputId = "raw", label = tags$h4("Select plot"),
         choices = c(
@@ -41,31 +41,31 @@ ui <- fluidPage(
         ),
         selected = "Non-linear", inline = TRUE
       ),
-      
-      #This section calculates a new set of data from the numeric inputs for A+B=AB
-      checkboxInput(inputId= "gen", label = h4("Make a new set of data"), value = FALSE),
-      
+
+      # This section calculates a new set of data from the numeric inputs for A+B=AB
+      checkboxInput(inputId = "gen", label = h4("Make a new set of data"), value = FALSE),
       fluidRow(
-        column(6,numericInput("concA",
-                   label = h5("Conc of ligand A"), value = 0.1, min = 0, step = 0.05)),
-        column(6,numericInput("Diss",
-                              label = h5("Kd value"), value = 0.5, min=0, step = 0.01))
+        column(6, numericInput("concA",
+          label = h5("Conc of ligand A"), value = 0.1, min = 0, step = 0.05
+        )),
+        column(6, numericInput("Diss",
+          label = h5("Kd value"), value = 0.5, min = 0, step = 0.01
+        ))
       ),
-      
       fluidRow(
-      column(6,numericInput("B1", label = h5("starting [B]"), value=0.1, min=0, step = 0.1)),
-      column(6,numericInput("B2", label = h5("ending [B]"), value=10, min = 0, step = 0.5))),
-      fluidRow(
-      column(6,numericInput("npoints", label = h5("number of points"), value = 10, min=3, step = 1)),
-      column(6, numericInput("jit", h5("add noise"), value = 0, min=0, max=1, step = 0.01))
-      
+        column(6, numericInput("B1", label = h5("starting [B]"), value = 0.1, min = 0, step = 0.1)),
+        column(6, numericInput("B2", label = h5("ending [B]"), value = 10, min = 0, step = 0.5))
       ),
-      
-      #New data is calculated only on pressing this button
+      fluidRow(
+        column(6, numericInput("npoints", label = h5("number of points"), value = 10, min = 3, step = 1)),
+        column(6, numericInput("jit", h5("add noise"), value = 0, min = 0, max = 1, step = 0.01))
+      ),
+
+      # New data is calculated only on pressing this button
       actionButton("goCalc", "Click to update the new data"),
       tags$br(),
-      
-      #Contact info and links to code
+
+      # Contact info and links to code
       tags$i("Please contact me with any comments on:"),
       helpText(h5(
         ThisApp, "version", ThisVersion, " last accessed", Sys.Date(), "at",
@@ -78,8 +78,8 @@ ui <- fluidPage(
       "Other apps and links for reproducible analysis in haemostasis assays are available",
       tags$a(href = "https://drclongstaff.github.io/shiny-clots/", "here")
     ),
-    
-    #Main panel with plot and results summary plus extra tabs
+
+    # Main panel with plot and results summary plus extra tabs
     mainPanel(
       tabsetPanel(
         type = "tab",
@@ -90,14 +90,14 @@ ui <- fluidPage(
           h4("Results Table"),
           tableOutput("resultsTable")
         ),
-        
-        #Tab 2 is raw data
+
+        # Tab 2 is raw data
         tabPanel("Raw data", DT::DTOutput("contents")),
-        
-        #Tab 3 is transformed data
+
+        # Tab 3 is transformed data
         tabPanel("Transformed data", DT::DTOutput("resultsTable2")),
-        
-        #Tab 4 is brief help
+
+        # Tab 4 is brief help
         tabPanel(
           "Help",
           tags$blockquote(h5(
@@ -120,7 +120,6 @@ ui <- fluidPage(
             "►The supplied data shows the expected data layout",
             tags$br(),
             "►There are tabs to access tables of raw and transformed data"
-            
           )),
         )
       )
@@ -130,12 +129,11 @@ ui <- fluidPage(
 
 # Define server logic
 server <- function(input, output) {
-  
-  #Get and clean startup data or user data
+  # Get and clean startup data or user data
   readData <- reactive({
     inputFile <- input$data
     if (is.null(inputFile)) {
-    #read.csv("./Data/Scatchard perfect.csv") |> as.data.frame()
+      # read.csv("./Data/Scatchard perfect.csv") |> as.data.frame()
       newRes()
     } else {
       req(inputFile)
@@ -151,18 +149,21 @@ server <- function(input, output) {
     }
   })
 
-  #Choose between startup or user data and generated data
+  # Choose between startup or user data and generated data
   selectData <- reactive({
-    if(input$gen) selectData <- newRes()
-    else selectData <- readData()
+    if (input$gen) {
+      selectData <- newRes()
+    } else {
+      selectData <- readData()
+    }
   })
-  
-  #Get column names from selected data
+
+  # Get column names from selected data
   var <- reactive({
     mycols <- colnames(selectData())
   })
 
-  #Identify the x column-usually free or added [B]
+  # Identify the x column-usually free or added [B]
   output$whatx <- renderUI({
     selectInput("colmnamesx",
       label = h4("Select x axis data"),
@@ -170,7 +171,7 @@ server <- function(input, output) {
     )
   })
 
-  #Intentify the y data-usually the complex [AB]
+  # Intentify the y data-usually the complex [AB]
   output$whaty <- renderUI({
     selectInput("colmnamesy",
       label = h4("Select y axis data"),
@@ -178,14 +179,13 @@ server <- function(input, output) {
     )
   })
 
-  #This is the raw data for the second tab
+  # This is the raw data for the second tab
   output$contents <- DT::renderDT({
     selectData()
   })
 
-  #Process the selected data to add the Scatchard transform
+  # Process the selected data to add the Scatchard transform
   procDat <- reactive({
-    
     req(selectData())
 
     theData <- selectData()
@@ -200,48 +200,44 @@ server <- function(input, output) {
     allDat
   })
 
-  #A new set of results is calculated from inputs and resGen function on goCalc activation
-  newRes<- reactive({
-    
+  # A new set of results is calculated from inputs and resGen function on goCalc activation
+  newRes <- reactive({
     input$goCalc
-    
-    A<-isolate(input$concA)
-    K<-isolate(input$Diss)
-    G <- isolate(input$jit*input$concA)
+
+    A <- isolate(input$concA)
+    K <- isolate(input$Diss)
+    G <- isolate(input$jit * input$concA)
     B1 <- isolate(input$B1)
     B2 <- isolate(input$B2)
     L <- isolate(input$npoints)
-    #Make a log sequence of concentrations of B
+    # Make a log sequence of concentrations of B
     B <- exp(seq(log(B1), log(B2), length.out = L))
-    #Call the external function resGen
+    # Call the external function resGen
     X <- resGen(A, B, K, G)
-    #Set up the dataframe of results
-    Res1 <- data.frame("Free"=round(B-X,8), "Bound"=round(X,8), "Added"=round(B,8))
-    
+    # Set up the dataframe of results
+    Res1 <- data.frame("Free" = round(B - X, 8), "Bound" = round(X, 8), "Added" = round(B, 8))
   })
-  
-  #Plots are generated using external functions for non-linear or linear plots
+
+  # Plots are generated using external functions for non-linear or linear plots
   output$myplot <- renderPlot({
-    
     req(tabData())
     req(procDat())
-    
-    #procDat for plotting and tabData for added lines
+
+    # procDat for plotting and tabData for added lines
     plotDat <- procDat()
     tabData <- tabData()
     switch(input$raw,
       "Scatchard" = linPlot(plotDat, Xs, Ys, input$colmnamesx),
       "Non-linear" = mmPlot(plotDat, X, Y, as.numeric(tabData[1, 4]), as.numeric(tabData[1, 3]), input$colmnamesx)
     )
-    
   })
 
-  #This is the summary table below the plots
+  # This is the summary table below the plots
   tabData <- reactive({
-    req(input$colmnamesx) #These definitely  seem to help prevent temporary error
+    req(input$colmnamesx) # These definitely  seem to help prevent temporary error
     req(input$colmnamesy)
     req(selectData())
-    
+
     theData <- selectData()
 
     S <- theData[[input$colmnamesx]]
@@ -257,7 +253,7 @@ server <- function(input, output) {
     Kmlm.s <- signif(-1 / slope.s, digits = 4)
     Vmaxlm.s <- signif(int.s * Kmlm.s, digits = 4)
 
-    #Non-linear fitting using SSmicmen
+    # Non-linear fitting using SSmicmen
     fitMM <- nls(V ~ SSmicmen(S, Vm, K))
     fitted <- predict(fitMM)
     Vmax <- signif(coef(fitMM)[1], digits = 4)
@@ -265,24 +261,23 @@ server <- function(input, output) {
     crcNls <- signif(cor(V, fitted), digits = 4)
 
     tabData <- data.frame(
-      "Fit"=c("Non-linear fit","Linear fit Scatchard "),
-      "plot x~y" = c(paste0(input$colmnamesx," vs Bound"),paste0("Bound vs Bound/", input$colmnamesx)),
+      "Fit" = c("Non-linear fit", "Linear fit Scatchard "),
+      "plot x~y" = c(paste0(input$colmnamesx, " vs Bound"), paste0("Bound vs Bound/", input$colmnamesx)),
       "Bmax" = c(Vmax, Vmaxlm.s),
       "Kd" = c(Km, Kmlm.s),
       "Correlation" = c(crcNls, r.s)
     )
-    
+
     tabData
-    
   })
 
-  #Output the results summary table
+  # Output the results summary table
   output$resultsTable <- renderTable({
     req(tabData())
     tabData()
   })
 
-  #Output the raw and transformed data in tab 3
+  # Output the raw and transformed data in tab 3
   output$resultsTable2 <- DT::renderDT({
     req(procDat())
     procDat()
