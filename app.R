@@ -28,8 +28,11 @@ ui <- fluidPage(
         column(6, fileInput("data", label = "Select data", accept = c(".csv", ".txt", ".xlsx"))),
         column(5, numericInput("sheet", "Excel sheet", value = 1, min = 1, step = 1))
       ),
+      #Select the columns of data from the file to use
       uiOutput("whatx"),
       uiOutput("whaty"),
+      
+      #Select non-linear plot or Scatchard transformation
       radioButtons(
         inputId = "raw", label = tags$h4("Select plot"),
         choices = c(
@@ -39,6 +42,7 @@ ui <- fluidPage(
         selected = "Non-linear", inline = TRUE
       ),
       
+      #This section calculates a new set of data from the numeric inputs for A+B=AB
       checkboxInput(inputId= "gen", label = h4("Make a new set of data"), value = FALSE),
       
       fluidRow(
@@ -57,12 +61,11 @@ ui <- fluidPage(
       
       ),
       
-      #sliderInput("jit", 
-                 # label =h4( "Add noise"),
-                 # min = 0, max = 0.1, value = 0),
-      
+      #New data is calculated only on pressing this button
       actionButton("goCalc", "Click to update the new data"),
       tags$br(),
+      
+      #Contact info and links to code
       tags$i("Please contact me with any comments on:"),
       helpText(h5(
         ThisApp, "version", ThisVersion, " last accessed", Sys.Date(), "at",
@@ -75,6 +78,8 @@ ui <- fluidPage(
       "Other apps and links for reproducible analysis in haemostasis assays are available",
       tags$a(href = "https://drclongstaff.github.io/shiny-clots/", "here")
     ),
+    
+    #Main panel with plot and results summary plus extra tabs
     mainPanel(
       tabsetPanel(
         type = "tab",
@@ -85,28 +90,37 @@ ui <- fluidPage(
           h4("Results Table"),
           tableOutput("resultsTable")
         ),
+        
+        #Tab 2 is raw data
         tabPanel("Raw data", DT::DTOutput("contents")),
+        
+        #Tab 3 is transformed data
         tabPanel("Transformed data", DT::DTOutput("resultsTable2")),
+        
+        #Tab 4 is brief help
         tabPanel(
           "Help",
           tags$blockquote(h5(
-            "►The app opens with an Excel data file from assays of plasminogen activation by streptokinase",
+            "►The app opens with a data file from from a binding assay",
             tags$br(),
-            "►Three independent sets of data are provided, A, B and C over a range of [plasminogen] substrate concentrations",
+            "►Alternatively check the box to generate a new set of data and adjust the binding parameters",
             tags$br(),
-            "►There are 3 sheets: 1) All replicates; 2) Means; 3) 3 points [Pgn] <km, ~Km and approaching Vmax",
+            "►Then explore the effects of changing Kd or [A] or [B] and errors on results and plots",
             tags$br(),
-            "►You can explore nonlinear fits or linear transformations of these data sets",
+            "►Click the update data button to recalculate and replot results",
+            tags$br(),
+            "►It is also possible to look at the effect of using 'Added' rather than 'Free' reactants",
+            tags$br(),
+            "►'Added' is often used to approximate free, but is only valid when the conc of ligand [A] is << [B]",
+            tags$br(),
+            "►You can explore how selections affect the results and deviations in non-linear and linear plots",
             tags$br(),
             "►Load your own data for fitting as csv, txt or xlsx files (the app will detect the format)",
             tags$br(),
             "►The supplied data shows the expected data layout",
             tags$br(),
-            "►An option is provided to show a Scatchard plot which is used in receptor-ligand binding analysis",
-            tags$br(),
-            "►However, the same nonlinear curve fitting of binding assays can be used to find Bmax and Kd (equivalent to Vmax and Km)",
-            tags$br(),
-            "►You can also see that the Scatchard plot is related to the Eadie-Hofstee plot, where the x and y axis have been switched"
+            "►There are tabs to access tables of raw and transformed data"
+            
           )),
         )
       )
@@ -116,11 +130,13 @@ ui <- fluidPage(
 
 # Define server logic
 server <- function(input, output) {
+  
+  #Get and clean startup data or user data
   readData <- reactive({
     inputFile <- input$data
     if (is.null(inputFile)) {
-    read.csv("./Data/Scatchard perfect.csv") |> as.data.frame()
-      #newRes()
+    #read.csv("./Data/Scatchard perfect.csv") |> as.data.frame()
+      newRes()
     } else {
       req(inputFile)
       (
@@ -135,37 +151,39 @@ server <- function(input, output) {
     }
   })
 
+  #Choose between startup or user data and generated data
   selectData <- reactive({
     if(input$gen) selectData <- newRes()
     else selectData <- readData()
   })
   
+  #Get column names from selected data
   var <- reactive({
-    mycols <- colnames(selectData()) #(readData())
+    mycols <- colnames(selectData())
   })
 
+  #Identify the x column-usually free or added [B]
   output$whatx <- renderUI({
     selectInput("colmnamesx",
       label = h4("Select x axis data"),
-      #choices = var(), selected = colnames(readData()[1])
       choices = var(), selected = colnames(selectData()[1])
     )
   })
 
+  #Intentify the y data-usually the complex [AB]
   output$whaty <- renderUI({
     selectInput("colmnamesy",
       label = h4("Select y axis data"),
-      #choices = var(), selected = colnames(readData()[2])
       choices = var(), selected = colnames(selectData()[2])
     )
   })
 
+  #This is the raw data for the second tab
   output$contents <- DT::renderDT({
-    #readData()
-    #procDat()
     selectData()
   })
 
+  #
   procDat <- reactive({
     if (is.null(input$colmnamesy)) {
       return()
