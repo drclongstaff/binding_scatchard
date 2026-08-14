@@ -264,12 +264,14 @@ server <- function(input, output) {
     Km <- signif(coef(fitMM)[2], digits = 4)
     crcNls <- signif(cor(V, fitted), digits = 4)
 
-    tabData <- matrix(c(
-      "Non-linear fit", paste0(input$colmnamesx," vs Bound"), Vmax, Km, crcNls,
-      "Linear fit Scatchard ", paste0("Bound vs Bound/", input$colmnamesx), Vmaxlm.s, Kmlm.s, r.s
-    ), byrow = TRUE, nrow = 2)
-    colnames(tabData) <- c("Fit", "plot x~y", "Bmax", "Kd", "Correlation")
-
+    tabData <- data.frame(
+      "Fit"=c("Non-linear fit","Linear fit Scatchard "),
+      "plot x~y" = c(paste0(input$colmnamesx," vs Bound"),paste0("Bound vs Bound/", input$colmnamesx)),
+      "Bmax" = c(Vmax, Vmaxlm.s),
+      "Kd" = c(Km, Kmlm.s),
+      "Correlation" = c(crcNls, r.s)
+    )
+    
     tabData
     
   })
