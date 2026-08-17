@@ -33,7 +33,7 @@ ui <- fluidPage(
       uiOutput("whatx"),
       uiOutput("whaty"),
 
-    fluidRow(column(12, helpText("_______________________________________________"))),
+    fluidRow(column(12, helpText("_________________________________________"))),
       
       # This section calculates a new set of data from the numeric inputs for A+B=AB
       #checkboxInput(inputId = "gen", label = h4("Make a new set of data"), value = FALSE),
@@ -112,7 +112,10 @@ ui <- fluidPage(
         tabPanel("Raw data", DT::DTOutput("contents")),
 
         # Tab 3 is transformed data
-        tabPanel("Transformed data", DT::DTOutput("resultsTable2")),
+        tabPanel("Transformed data", 
+                 DT::DTOutput("resultsTable2"),
+                 helpText(h5("* X.Sc and Y.Sc are Scatchard transformations"))
+                 ),
 
         # Tab 4 is brief help
         tabPanel(
@@ -209,10 +212,10 @@ server <- function(input, output) {
 
     S <- theData[[input$colmnamesx]]
     V <- theData[[input$colmnamesy]]
-
+    
     allDat <- signif(data.frame(
       "X" = S, "Y" = V,
-      "Xs" = V, "Ys" = V / S
+      "X.Sc" = V, "Y.Sc" = V / S
     ), digits = 4)
     allDat
   })
@@ -246,7 +249,7 @@ server <- function(input, output) {
     plotDat <- procDat()
     tabData <- tabData()
     switch(input$raw,
-      "Scatchard" = linPlot(plotDat, Xs, Ys, input$colmnamesx),
+      "Scatchard" = linPlot(plotDat, X.Sc, Y.Sc, input$colmnamesx),
       "Non-linear" = mmPlot(plotDat, X, Y, as.numeric(tabData[1, 4]), as.numeric(tabData[1, 3]), input$colmnamesx)
     )
   })
@@ -281,7 +284,7 @@ server <- function(input, output) {
 
     tabData <- data.frame(
       "Fit" = c("Non-linear fit", "Linear fit Scatchard "),
-      "plot x~y" = c(paste0(input$colmnamesx, " vs Bound"), paste0("Bound vs Bound/", input$colmnamesx)),
+      "plot x ~ y" = c(paste0(input$colmnamesx, " vs Bound"), paste0("Bound vs Bound/", input$colmnamesx)),
       "Bmax" = c(Vmax, Vmaxlm.s),
       "Kd" = c(Km, Kmlm.s),
       "Correlation" = c(crcNls, r.s)
